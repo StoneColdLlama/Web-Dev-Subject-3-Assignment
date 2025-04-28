@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pac-Man Animation</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+    
+    .container {
+      width: calc(100vw - 40px);
+      height: calc(100vh - 40px);
+      position: relative;
+      border: 20px solid #1a7a2c;
+      box-sizing: border-box;
+    }
+    
+    #pacman {
+      width: 100px;
+      height: 100px;
+      position: absolute;
+      top: 45%;
+      left: 0;
+      transition: transform 0.2s ease;
+      transform-origin: center;
+    }
+    
+    .dot {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background-color: #ffffff;
+      position: absolute;
+      top: 48%;
+    }
+    
+    .message {
+      position: absolute;
+      top: 20%;
+      width: 100%;
+      text-align: center;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="message">Pac-Man has left the building!</div>
+    <svg id="pacman" viewBox="0 0 100 100">
+      <path id="pacman-body" d="M50 10 A40 40 0 1 0 50 90 A40 40 0 1 0 50 10" fill="yellow" stroke="black" stroke-width="1" />
+      <path id="pacman-mouth" d="M50 50 L90 25 L90 75 Z" fill="black" />
+    </svg>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const container = document.querySelector('.container');
+      const pacman = document.getElementById('pacman');
+      const pacmanShape = document.getElementById('pacman-shape');
+      const message = document.querySelector('.message');
+      
+      // Create dots
+      const numDots = 10;
+      const dotPositions = [];
+      const dotSpacing = Math.floor(window.innerWidth / (numDots + 2));
+      
+      for (let i = 0; i < numDots; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.style.left = ((i + 1) * dotSpacing) + 'px';
+        container.appendChild(dot);
+        dotPositions.push((i + 1) * dotSpacing);
+      }
+      
+      // Initial position
+      let pacmanX = -100;
+      pacman.style.left = pacmanX + 'px';
+      
+      // Animation variables
+      let mouthOpen = true;
+      let speed = 5;
+      let dotIndex = 0;
+      const pacmanMouth = document.getElementById('pacman-mouth');
+      
+      // Animation function
+      function animate() {
+        // Move Pac-Man
+        pacmanX += speed;
+        pacman.style.left = pacmanX + 'px';
+        
+        // Animate mouth
+        if (mouthOpen) {
+          pacmanMouth.setAttribute('d', 'M50 50 L90 25 L90 75 Z');
+        } else {
+          pacmanMouth.setAttribute('d', 'M50 50 L90 45 L90 55 Z');
+        }
+        
+        // Toggle mouth every few frames
+        if (pacmanX % 20 === 0) {
+          mouthOpen = !mouthOpen;
+        }
+        
+        // Check for dot collision
+        const dots = document.querySelectorAll('.dot');
+        if (dotIndex < dotPositions.length) {
+          if (pacmanX >= dotPositions[dotIndex] - 50) {
+            dots[dotIndex].style.opacity = 0;
+            dotIndex++;
+          }
+        }
+        
+        // Continue moving until Pac-Man leaves the screen
+        if (pacmanX < window.innerWidth + 100) {
+          requestAnimationFrame(animate);
+        } else {
+          // Show message when Pac-Man has left
+          message.style.opacity = 1;
+        }
+      }
+      
+      // Start animation after a short delay
+      setTimeout(() => {
+        animate();
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
